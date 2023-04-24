@@ -9,7 +9,7 @@ use anyhow::{anyhow, Context, Result};
 use nix::unistd::sync;
 use tempfile::TempDir;
 
-use crate::esp::{EspGenerationPaths, EspPaths};
+use crate::esp::{EspGenerationPaths, EspPaths, Architecture};
 use crate::gc::Roots;
 use crate::generation::{Generation, GenerationLink};
 use crate::os_release::OsRelease;
@@ -332,7 +332,8 @@ impl Installer {
     fn install_systemd_boot(&self) -> Result<()> {
         let systemd_boot = self
             .systemd
-            .join("lib/systemd/boot/efi/systemd-bootx64.efi");
+            .join("lib/systemd/boot/efi")
+            .join(self.target_arch.systemd_filename());
 
         let paths = [
             (&systemd_boot, &self.esp_paths.efi_fallback),

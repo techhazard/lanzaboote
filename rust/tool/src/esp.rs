@@ -1,9 +1,45 @@
 use std::array::IntoIter;
 use std::path::{Path, PathBuf};
 
-use anyhow::{Context, Result};
+use anyhow::{Context, Result, bail};
 
 use crate::generation::Generation;
+
+/// Supported system
+#[allow(dead_code)]
+#[non_exhaustive]
+#[derive(Copy, Clone, PartialEq, Debug)]
+pub enum Architecture {
+    X86,
+    AArch64,
+}
+
+impl System {
+    pub fn systemd_filename(&self) -> &Path {
+        Path::new(match self {
+            Self::X86 => "systemd-bootx64.efi",
+            Self::AArch64 => "systemd-bootaa64.efi"
+        })
+    }
+
+    pub fn efi_fallback_filename(&self) -> &Path {
+        Path::new(match self {
+            Self::X86 => "BOOTX64.EFI",
+            Self::AArch64 => "BOOTAA64.EFI",
+        })
+    }
+}
+
+impl Architecture {
+    /// Converts from a NixOS system double to a supported system
+    pub fn from_nixos_system(system_double: &str) -> Result<Self> {
+        Ok(match system_double {
+            "x86_64-linux" => Self::X86,
+            "aarch64-linux" => Self::AArch64,
+            _ => bail!("Unsupported NixOS system double: {}, please open an issue or a PR if you think this should be supported.", system_double)
+        })
+    }
+}
 
 /// Paths to the boot files that are not specific to a generation.
 pub struct EspPaths {
@@ -12,9 +48,7 @@ pub struct EspPaths {
     pub nixos: PathBuf,
     pub linux: PathBuf,
     pub efi_fallback_dir: PathBuf,
-    pub efi_fallback: PathBuf,
     pub systemd: PathBuf,
-    pub systemd_boot: PathBuf,
     pub loader: PathBuf,
     pub systemd_boot_loader_config: PathBuf,
 }
@@ -35,26 +69,22 @@ impl EspPaths {
             efi,
             nixos: efi_nixos,
             linux: efi_linux,
-            efi_fallback_dir: efi_efi_fallback_dir.clone(),
-            efi_fallback: efi_efi_fallback_dir.join("BOOTX64.EFI"),
-            systemd: efi_systemd.clone(),
-            systemd_boot: efi_systemd.join("systemd-bootx64.efi"),
+            efi_fallback_dir: efi_efi_fallback_dir,
+            systemd: efi_systemd,
             loader,
             systemd_boot_loader_config,
         }
     }
 
     /// Return the used file paths to store as garbage collection roots.
-    pub fn to_iter(&self) -> IntoIter<&PathBuf, 10> {
+    pub fn to_iter(&self) -> IntoIter<&PathBuf, 8> {
         [
             &self.esp,
             &self.efi,
             &self.nixos,
             &self.linux,
             &self.efi_fallback_dir,
-            &self.efi_fallback,
             &self.systemd,
-            &self.systemd_boot,
             &self.loader,
             &self.systemd_boot_loader_config,
         ]
@@ -72,6 +102,9 @@ pub struct EspGenerationPaths {
 impl EspGenerationPaths {
     pub fn new(esp_paths: &EspPaths, generation: &Generation) -> Result<Self> {
         let bootspec = &generation.spec.bootspec.bootspec;
+        let bootspec_system: Architecture = Architecture::from_nixos_system(&bootspec.system)?;
+
+        assert_eq!(system, bootspec_system, "Bootspec's system differs from provided target system, unsupported usecase!");
 
         Ok(Self {
             kernel: esp_paths
