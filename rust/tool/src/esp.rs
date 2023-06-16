@@ -107,7 +107,7 @@ pub struct EspGenerationPaths {
 }
 
 impl EspGenerationPaths {
-    pub fn new(esp_paths: &EspPaths, generation: &Generation) -> Result<Self> {
+    pub fn new(esp_paths: &EspPaths, generation: &Generation, system: Architecture) -> Result<Self> {
         let bootspec = &generation.spec.bootspec.bootspec;
         let bootspec_system: Architecture = Architecture::from_nixos_system(&bootspec.system)?;
 

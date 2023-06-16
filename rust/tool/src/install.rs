@@ -28,11 +28,13 @@ pub struct Installer {
     configuration_limit: usize,
     esp_paths: EspPaths,
     generation_links: Vec<PathBuf>,
+    target_arch: Architecture,
 }
 
 impl Installer {
     pub fn new(
         lanzaboote_stub: PathBuf,
+        target_arch: Architecture,
         systemd: PathBuf,
         systemd_boot_loader_config: PathBuf,
         key_pair: KeyPair,
@@ -54,6 +56,7 @@ impl Installer {
             configuration_limit,
             esp_paths,
             generation_links,
+            target_arch,
         }
     }
 
@@ -235,7 +238,7 @@ impl Installer {
 
         let bootspec = &generation.spec.bootspec.bootspec;
 
-        let esp_gen_paths = EspGenerationPaths::new(&self.esp_paths, generation)?;
+        let esp_gen_paths = EspGenerationPaths::new(&self.esp_paths, generation, self.target_arch)?;
         self.gc_roots.extend(esp_gen_paths.to_iter());
 
         let initrd_content = fs::read(
@@ -281,7 +284,7 @@ impl Installer {
 
         let bootspec = &generation.spec.bootspec.bootspec;
 
-        let esp_gen_paths = EspGenerationPaths::new(&self.esp_paths, generation)?;
+        let esp_gen_paths = EspGenerationPaths::new(&self.esp_paths, generation, self.target_arch)?;
 
         let kernel_cmdline =
             assemble_kernel_cmdline(&bootspec.init, bootspec.kernel_params.clone());
