@@ -55,13 +55,15 @@ pub struct EspPaths {
     pub nixos: PathBuf,
     pub linux: PathBuf,
     pub efi_fallback_dir: PathBuf,
+    pub efi_fallback: PathBuf,
     pub systemd: PathBuf,
+    pub systemd_boot: PathBuf,
     pub loader: PathBuf,
     pub systemd_boot_loader_config: PathBuf,
 }
 
 impl EspPaths {
-    pub fn new(esp: impl AsRef<Path>) -> Self {
+    pub fn new(esp: impl AsRef<Path>, target_arch: Architecture) -> Self {
         let esp = esp.as_ref();
         let efi = esp.join("EFI");
         let efi_nixos = efi.join("nixos");
@@ -70,6 +72,8 @@ impl EspPaths {
         let efi_efi_fallback_dir = efi.join("BOOT");
         let loader = esp.join("loader");
         let systemd_boot_loader_config = loader.join("loader.conf");
+        let systemd_boot = efi_systemd.join(target_arch.systemd_filename());
+        let efi_fallback = efi_efi_fallback_dir.join(target_arch.efi_fallback_filename());
 
         Self {
             esp: esp.to_path_buf(),
@@ -77,21 +81,25 @@ impl EspPaths {
             nixos: efi_nixos,
             linux: efi_linux,
             efi_fallback_dir: efi_efi_fallback_dir,
+            efi_fallback,
             systemd: efi_systemd,
+            systemd_boot,
             loader,
             systemd_boot_loader_config,
         }
     }
 
     /// Return the used file paths to store as garbage collection roots.
-    pub fn to_iter(&self) -> IntoIter<&PathBuf, 8> {
+    pub fn to_iter(&self) -> IntoIter<&PathBuf, 10> {
         [
             &self.esp,
             &self.efi,
             &self.nixos,
             &self.linux,
             &self.efi_fallback_dir,
+            &self.efi_fallback,
             &self.systemd,
+            &self.systemd_boot,
             &self.loader,
             &self.systemd_boot_loader_config,
         ]
