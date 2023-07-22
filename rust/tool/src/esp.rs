@@ -2,7 +2,7 @@ use std::{path::{PathBuf, Path}, array::IntoIter};
 
 use anyhow::{Context, Result};
 
-use crate::common::generation::Generation;
+use crate::generation::Generation;
 
 /// Generic ESP paths which can be specific to a bootloader
 // The const generics is necessary because:
