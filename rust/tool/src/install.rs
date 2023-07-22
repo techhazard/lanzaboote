@@ -9,7 +9,8 @@ use anyhow::{anyhow, Context, Result};
 use nix::unistd::sync;
 use tempfile::TempDir;
 
-use crate::esp::{EspGenerationPaths, EspPaths, Architecture};
+use crate::architecture::Architecture;
+use crate::esp::{EspGenerationPaths, EspPaths, SystemdArchitectureExt};
 use crate::gc::Roots;
 use crate::generation::{Generation, GenerationLink};
 use crate::os_release::OsRelease;

@@ -1,4 +1,5 @@
 mod cli;
+mod architecture;
 mod esp;
 mod gc;
 mod generation;

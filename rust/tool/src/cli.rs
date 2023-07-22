@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 
-use crate::esp::Architecture;
+use crate::architecture::Architecture;
 use crate::install;
 use crate::signature::KeyPair;
 
