@@ -4,7 +4,10 @@ rustPlatform.buildRustPackage
 {
   pname = "lanzaboote_stub";
   version = "0.3.0";
-  src = lib.cleanSource ../../rust/stub;
+  src = lib.cleanSource ../../rust;
+
+  # Needed to support the linux-bootloader crate.
+  sourceRoot = "source/stub";
 
   # We don't want the thin code.
   buildNoDefaultFeatures = true;
