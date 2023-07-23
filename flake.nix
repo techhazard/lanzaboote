@@ -165,6 +165,7 @@
               pkgs.nixpkgs-fmt
               pkgs.statix
               pkgs.cargo-release
+              pkgs.cargo-machete
             ];
 
             inputsFrom = [ config.packages.stub config.packages.tool ];
