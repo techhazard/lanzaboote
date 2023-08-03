@@ -70,7 +70,7 @@
             inherit system;
             crossSystem = {
               # linuxArch is wrong here, it will yield arm64 instead of aarch64.
-              config = "${pkgs.stdenv.hostPlatform.qemuArch}-windows";
+              config = "${pkgs.stdenv.hostPlatform.qemuArch}-linux";
               rustc.config = "${pkgs.stdenv.hostPlatform.qemuArch}-unknown-uefi";
               libc = null;
               useLLVM = true;
