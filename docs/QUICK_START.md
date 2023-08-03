@@ -98,33 +98,12 @@ This takes a couple of seconds. When it is done, your Secure Boot keys
 are located in `/etc/secureboot`. `sbctl` sets the permissions of the
 secret key so that only root can read it.
 
-### Switching to bootspec
-
-`lzbt` currently doesn't handle
-non-[bootspec](https://github.com/grahamc/rfcs/blob/bootspec/rfcs/0125-bootspec.md)
-generations well
-([#55](https://github.com/nix-community/lanzaboote/issues/55)). As
-such, we need to switch to bootspec and get rid of all previous
-generations before we can continue.
-
-Bootspec is currently available as preview in nixpkgs unstable. To
-enable bootspec, set `boot.bootspec.enable = true;` in your system
-configuration, rebuild and reboot.
-
-When everything is working, you can garbage collect your old
-non-bootspec generations: `nix-collect-garbage -d`.
-
-🔪 **Sharp edge:** 🔪 This will leave old boot entries lying around in
-the ESP. `systemd-boot` will display these during boot. This can be
-confusing during boot. **After you made a backup of your ESP**, you
-may delete these entries in `/boot/loader/entries`.
-
 ### Configuring NixOS (with [`niv`](https://github.com/nmattia/niv))
 
 Add `lanzaboote` as a dependency of your niv project and track a stable release tag (https://github.com/nix-community/lanzaboote/releases).
 
 ```console
-$ niv add nix-community/lanzaboote -r v0.2.0 -v 0.2.0
+$ niv add nix-community/lanzaboote -r v0.3.0 -v 0.3.0
 Adding package lanzaboote
   Writing new sources file
 Done: Adding package lanzaboote
@@ -141,9 +120,6 @@ let
 in
 {
   imports = [ lanzaboote.nixosModules.lanzaboote ];
-  # This should already be here from switching to bootspec earlier.
-  # It's not required anymore, but also doesn't do any harm.
-  boot.bootspec.enable = true;
 
   environment.systemPackages = [
     # For debugging and troubleshooting Secure Boot.
@@ -176,7 +152,7 @@ Boot stack.
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     lanzaboote = {
-      url = "github:nix-community/lanzaboote";
+      url = "github:nix-community/lanzaboote/v0.3.0";
 
       # Optional but recommended to limit the size of your system closure.
       inputs.nixpkgs.follows = "nixpkgs";
@@ -195,9 +171,6 @@ Boot stack.
           lanzaboote.nixosModules.lanzaboote
 
           ({ pkgs, lib, ... }: {
-            # This should already be here from switching to bootspec earlier.
-            # It's not required anymore, but also doesn't do any harm.
-            boot.bootspec.enable = true;
 
             environment.systemPackages = [
               # For debugging and troubleshooting Secure Boot.
@@ -238,14 +211,6 @@ Verifying file database and EFI images in /boot...
 
 It is expected that the files ending with `bzImage.efi` are _not_
 signed.
-
-🔪 **Sharp edge:** 🔪 In case any of the `nixos-generation-*.efi`
-files are not signed, you have hit a bug
-([#39](https://github.com/nix-community/lanzaboote/issues/39)).  This
-issue will prevent the system from booting successfully when Secure
-Boot is enabled. The way to solve this is **deleting** the unsigned
-files indicated by `sbctl` and switching to the configuration
-again. This will copy and sign the missing files.
 
 ## Part 2: Enabling Secure Boot
 

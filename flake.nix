@@ -1,4 +1,11 @@
 {
+  nixConfig.extra-substituters = [
+    "https://nix-community.cachix.org"
+  ];
+  nixConfig.extra-trusted-public-keys = [
+    "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+  ];
+
   description = "Lanzaboote: Secure Boot for NixOS";
 
   inputs = {
@@ -63,8 +70,8 @@
             inherit system;
             crossSystem = {
               # linuxArch is wrong here, it will yield arm64 instead of aarch64.
-              config = "${pkgs.hostPlatform.qemuArch}-windows";
-              rustc.config = "${pkgs.hostPlatform.qemuArch}-unknown-uefi";
+              config = "${pkgs.stdenv.hostPlatform.qemuArch}-windows";
+              rustc.config = "${pkgs.stdenv.hostPlatform.qemuArch}-unknown-uefi";
               libc = null;
               useLLVM = true;
             };
