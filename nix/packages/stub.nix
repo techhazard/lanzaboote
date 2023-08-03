@@ -24,6 +24,6 @@ rustPlatform.buildRustPackage
     description = "Lanzaboote UEFI stub for SecureBoot enablement on NixOS systems";
     homepage = "https://github.com/nix-community/lanzaboote";
     license = licenses.mit;
-    platforms = [ "x86_64-windows" "aarch64-windows" "i686-windows" ];
+    platforms = [ "x86_64-windows" "aarch64-windows" "i686-windows" "aarch64-linux" ];
   };
 }
